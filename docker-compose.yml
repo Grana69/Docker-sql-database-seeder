@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  maria:
+    image: mariadb:10.5.3-bionic
+    container_name: mariadb
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$DB_ADMIN_PWD
+      - MYSQL_USER=$DB_USER
+      - MYSQL_PASSWORD=$DB_USER_PWD
+      - MYSQL_DATABASE=$DB_NAME
+    ports:
+      - "$DB_PORT:3306"
+    volumes:
+      # The named volume dbdata will persist the data stored in Mongo’s default data directory, /data/db.
+      # This will ensure that you don’t lose data in cases where you stop or remove containers.
+      - dbdata:/data/db
+  maria_seeding:
+    container_name: mariadb_seed
+    build: .
+    depends_on:
+      - maria
+# Our top-level volumes key defines the volumes dbdata.
+# When Docker creates volumes, the contents of the volume are stored in a part of the host filesystem, /var/lib/docker/volumes/, that’s managed by Docker.
+# The contents of each volume are stored in a directory under /var/lib/docker/volumes/ and get mounted to any container that uses the volume.
+# In this way, the data that our users will create will persist in the dbdata volume even if we remove and recreate the db container.
+volumes:
+  dbdata:
