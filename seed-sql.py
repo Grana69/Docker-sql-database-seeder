@@ -7,38 +7,41 @@ from connection import Connection
 from tb_user import User
 from tb_role import Role
 from tb_balance import Balance
+""" 
+from classes import classes """
 
 # stablish connection
 conn = Connection()
 # number of users
 total_users = 10
 
-# Instancias
-userClass = User(conn.connection, conn.cursor, total_users)
-roleClass = Role(conn.connection, conn.cursor, total_users)
-balanceClass = Balance(conn.connection, conn.cursor, total_users)
+# Array Class creation and append
+classes = []
+classes.append(User)
+classes.append(Role)
+classes.append(Balance)
 
+# Tables
+tables = []
+
+# Instance creation
+for a in classes:
+    tables.append(a(conn.connection, conn.cursor, total_users))
 
 # Drop tables
-userClass.drop_table()
-roleClass.drop_table()
-balanceClass.drop_table()
-
+for a in tables:
+    a.drop_table()
 
 # Create tables
-userClass.create_table()
-roleClass.create_table()
-balanceClass.create_table()
+for a in tables:
+    a.create_table()
 
-# Create Relations
-userClass.create_relation()
-balanceClass.create_relation()
+# Create relations
+for a in tables:
+    a.create_relation()
 
 # Insert Data
-userClass.insertData()
-roleClass.insertData()
-balanceClass.insertData()
+for a in tables:
+    a.insertData()
 
-
-# Commit Changes
-balanceClass.pushAndClose()
+tables[0].pushAndClose()
